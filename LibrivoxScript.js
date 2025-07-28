@@ -259,7 +259,7 @@ source.getChannelContents = function(url, type, order, filters, isPlaylist) {
     return new ContentPager(results, false);
 };
 
-// Content details
+// Content details - Now returns audiobook as a playlist with chapters
 source.isContentDetailsUrl = function(url) {
     return REGEX_AUDIOBOOK_URL.test(url);
 };
@@ -302,29 +302,65 @@ source.getContentDetails = function(url) {
     const authorName = author ? author.first_name + " " + author.last_name : "Unknown";
     const authorUrl = author ? "https://librivox.org/author/" + author.id : "";
     
-    return new PlatformVideoDetails({
+    // Create the audiobook as a playlist with chapters
+    const playlistItems = tracks.map(track => {
+        return new PlatformVideo({
+            id: new PlatformID(PLATFORM, book.id + "_" + track.section_number, config.id),
+            name: track.title || "Chapter " + track.section_number,
+            thumbnails: new Thumbnails([new Thumbnail(book.coverart_jpg || "", 0)]),
+            author: new PlatformAuthorLink(
+                new PlatformID(PLATFORM, author?.id?.toString() || "unknown", config.id),
+                authorName,
+                authorUrl,
+                ""
+            ),
+            uploadDate: parseInt(new Date().getTime() / 1000),
+            duration: parseInt(track.playtime || 0),
+            viewCount: -1,
+            url: track.listen_url || "",
+            isLive: false
+        });
+    });
+    
+    // If no individual tracks, create a single item for the whole book
+    if (playlistItems.length === 0) {
+        playlistItems.push(new PlatformVideo({
+            id: new PlatformID(PLATFORM, book.id.toString(), config.id),
+            name: book.title,
+            thumbnails: new Thumbnails([new Thumbnail(book.coverart_jpg || "", 0)]),
+            author: new PlatformAuthorLink(
+                new PlatformID(PLATFORM, author?.id?.toString() || "unknown", config.id),
+                authorName,
+                authorUrl,
+                ""
+            ),
+            uploadDate: parseInt(new Date().getTime() / 1000),
+            duration: parseDuration(book.totaltime),
+            viewCount: -1,
+            url: book.url_zip_file || "",
+            isLive: false
+        }));
+    }
+    
+    return new PlatformPlaylistDetails({
+        url: url,
         id: new PlatformID(PLATFORM, book.id.toString(), config.id),
-        name: book.title,
-        thumbnails: new Thumbnails([new Thumbnail(book.coverart_jpg || "", 0)]),
         author: new PlatformAuthorLink(
             new PlatformID(PLATFORM, author?.id?.toString() || "unknown", config.id),
             authorName,
             authorUrl,
             ""
         ),
-        uploadDate: parseInt(new Date().getTime() / 1000), // Use current time as fallback
-        duration: parseDuration(book.totaltime),
-        viewCount: -1,
-        url: url,
-        isLive: false,
-        description: description,
-        video: getAudioSource(book, tracks)
+        name: book.title,
+        thumbnail: book.coverart_jpg || "",
+        videoCount: playlistItems.length,
+        contents: new VideoPager(playlistItems)
     });
 };
 
 // Playlist handling
 source.isPlaylistUrl = function(url) {
-    return REGEX_AUTHOR_URL.test(url);
+    return REGEX_AUTHOR_URL.test(url) || REGEX_AUDIOBOOK_URL.test(url);
 };
 
 source.getUserPlaylists = function() {
@@ -349,6 +385,10 @@ source.getPlaylist = function(url) {
             thumbnail: channel.thumbnail,
             contents: contents
         });
+    }
+    
+    if (REGEX_AUDIOBOOK_URL.test(url)) {
+        return source.getContentDetails(url);
     }
     
     throw new ScriptException('Invalid playlist url');
@@ -378,34 +418,6 @@ function audiobookToPlatformVideo(book) {
         url: "https://librivox.org/" + book.title.toLowerCase().replace(/\s+/g, "-"),
         isLive: false
     });
-}
-
-function getAudioSource(book, tracks) {
-    if (!tracks || tracks.length === 0) {
-        // Fallback to zip file if no individual tracks
-        return new UnMuxVideoSourceDescriptor([], [
-            new AudioUrlSource({
-                name: "audio/mp3",
-                container: "audio/mp3",
-                bitrate: 0,
-                url: book.url_zip_file || "",
-                duration: parseDuration(book.totaltime),
-            })
-        ]);
-    }
-    
-    // Create audio sources for each chapter/track
-    const audioSources = tracks.map(track => 
-        new AudioUrlSource({
-            name: track.title || "Chapter " + track.section_number,
-            container: "audio/mp3",
-            bitrate: 0,
-            url: track.listen_url || "",
-            duration: parseInt(track.playtime || 0)
-        })
-    );
-    
-    return new UnMuxVideoSourceDescriptor([], audioSources);
 }
 
 function parseDuration(timeString) {
