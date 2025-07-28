@@ -7,7 +7,7 @@
     "repositoryUrl": "https://github.com/vijay-prema/librivox-grayjay",
     "sourceUrl": "https://raw.githubusercontent.com/vijay-prema/librivox-grayjay/refs/heads/main/LibrivoxConfig.json",
     "scriptUrl": "./LibrivoxScript.js",
-    "version": 1,
+    "version": 2,
     "iconUrl": "./LibrivoxIcon.png",
     "id": "971285f6-289a-40da-8df8-97aedb905927",
     "subscriptionRateLimit": 10,
@@ -65,6 +65,10 @@
             "Browse popular and recently added audiobooks",
             "Support for multiple languages",
             "Chapter-based navigation for audiobooks"
+        ],
+        "2": [
+            "Audiobook are now returned as playlists with chapters"
         ]
+
     }
 }
