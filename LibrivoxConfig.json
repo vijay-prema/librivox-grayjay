@@ -1,0 +1,70 @@
+{
+    "name": "Librivox Audiobooks",
+    "platformUrl": "https://librivox.org/",
+    "description": "Free public domain audiobooks read by volunteers from around the world",
+    "author": "Vijay Prema",
+    "authorUrl": "https://futo.org",
+    "repositoryUrl": "https://github.com/vijay-prema/librivox-grayjay",
+    "sourceUrl": "https://raw.githubusercontent.com/vijay-prema/librivox-grayjay/refs/heads/main/LibrivoxConfig.json",
+    "scriptUrl": "./LibrivoxScript.js",
+    "version": 1,
+    "iconUrl": "./LibrivoxIcon.png",
+    "id": "971285f6-289a-40da-8df8-97aedb905927",
+    "subscriptionRateLimit": 10,
+    "scriptSignature": "",
+    "scriptPublicKey": "",
+    "packages": [
+        "Http"
+    ],
+    "allowEval": false,
+    "allowUrls": [
+        "librivox.org"
+    ],
+    "settings": [
+        {
+            "variable": "allowExplicit",
+            "name": "Allow Explicit Content",
+            "description": "Allow listening to audiobooks with explicit content warnings",
+            "type": "Boolean",
+            "default": "true"
+        },
+        {
+            "variable": "preferredLanguage",
+            "name": "Preferred Language",
+            "description": "Select your preferred language for audiobook results",
+            "type": "Dropdown",
+            "default": "0",
+            "options": [
+                "English",
+                "French",
+                "German",
+                "Spanish",
+                "Italian",
+                "Portuguese",
+                "Dutch",
+                "All Languages"
+            ]
+        },
+        {
+            "variable": "contentRecommendationOptionIndex",
+            "name": "Content recommendations source",
+            "description": "Select the source of content recommendations",
+            "type": "Dropdown",
+            "default": "0",
+            "options": [
+                "Popular audiobooks",
+                "Recently added audiobooks"
+            ]
+        }
+    ],
+    "authentication": null,
+    "changelog": {
+        "1": [
+            "Initial release: Support for Librivox audiobooks",
+            "Search audiobooks by title, author, or genre",
+            "Browse popular and recently added audiobooks",
+            "Support for multiple languages",
+            "Chapter-based navigation for audiobooks"
+        ]
+    }
+}
