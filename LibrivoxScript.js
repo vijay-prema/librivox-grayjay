@@ -405,7 +405,10 @@ function getAudioSource(book, tracks) {
         })
     );
     
-    return new UnMuxVideoSourceDescriptor([], audioSources);
+    const descriptor = new UnMuxVideoSourceDescriptor([], audioSources);
+    descriptor.isUnMuxed = true;
+
+    return descriptor;
 }
 
 function parseDuration(timeString) {

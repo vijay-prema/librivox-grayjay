@@ -7,7 +7,7 @@
     "repositoryUrl": "https://github.com/vijay-prema/librivox-grayjay",
     "sourceUrl": "https://raw.githubusercontent.com/vijay-prema/librivox-grayjay/refs/heads/main/LibrivoxConfig.json",
     "scriptUrl": "./LibrivoxScript.js",
-    "version": 2,
+    "version": 3,
     "iconUrl": "./LibrivoxIcon.png",
     "id": "971285f6-289a-40da-8df8-97aedb905927",
     "subscriptionRateLimit": 10,
@@ -18,7 +18,8 @@
     ],
     "allowEval": false,
     "allowUrls": [
-        "librivox.org"
+        "librivox.org",
+        "archive.org"
     ],
     "settings": [
         {
@@ -68,7 +69,9 @@
         ],
         "2": [
             "Audiobook are now returned as playlists with chapters"
+        ],
+        "3": [
+            "Revert playlist approach and try something else"
         ]
-
     }
 }
