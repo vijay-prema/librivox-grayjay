@@ -72,6 +72,9 @@
         ],
         "3": [
             "Revert playlist approach and try something else"
+        ],
+        "4": [
+            "Added thumbnail support for audiobooks and authors"
         ]
     }
 }

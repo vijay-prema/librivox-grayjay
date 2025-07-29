@@ -226,7 +226,7 @@ source.getChannel = function(url) {
     return new PlatformChannel({
         id: new PlatformID(PLATFORM, author.id.toString(), config.id),
         name: authorName,
-        thumbnail: "",
+        thumbnail: "https://librivox.org/images/librivox-logo.png",
         banner: "",
         subscribers: -1,
         description: description,
@@ -305,7 +305,7 @@ source.getContentDetails = function(url) {
     return new PlatformVideoDetails({
         id: new PlatformID(PLATFORM, book.id.toString(), config.id),
         name: book.title,
-        thumbnails: new Thumbnails([new Thumbnail(book.coverart_jpg || "", 0)]),
+        thumbnails: new Thumbnails([new Thumbnail(getThumbnailUrl(book), 0)]),
         author: new PlatformAuthorLink(
             new PlatformID(PLATFORM, author?.id?.toString() || "unknown", config.id),
             authorName,
@@ -362,10 +362,13 @@ function audiobookToPlatformVideo(book) {
     const authorName = author ? author.first_name + " " + author.last_name : "Unknown";
     const authorUrl = author ? "https://librivox.org/author/" + author.id : "";
     
+    // Get best available thumbnail with fallback
+    const thumbnailUrl = getThumbnailUrl(book);
+    
     return new PlatformVideo({
         id: new PlatformID(PLATFORM, book.id.toString(), config.id),
         name: book.title,
-        thumbnails: new Thumbnails([new Thumbnail(book.coverart_jpg || "", 0)]),
+        thumbnails: new Thumbnails([new Thumbnail(thumbnailUrl, 0)]),
         author: new PlatformAuthorLink(
             new PlatformID(PLATFORM, author?.id?.toString() || "unknown", config.id),
             authorName,
@@ -378,6 +381,29 @@ function audiobookToPlatformVideo(book) {
         url: "https://librivox.org/" + book.title.toLowerCase().replace(/\s+/g, "-"),
         isLive: false
     });
+}
+
+function getThumbnailUrl(book) {
+    // Priority order for thumbnail sources
+    if (book.coverart_jpg && book.coverart_jpg.trim() !== "") {
+        return book.coverart_jpg;
+    }
+    
+    if (book.url_cover_image && book.url_cover_image.trim() !== "") {
+        return book.url_cover_image;
+    }
+    
+    if (book.url_librivox && book.url_librivox.includes('archive.org')) {
+        // Try to construct archive.org thumbnail from identifier
+        const archiveMatch = book.url_librivox.match(/archive\.org\/details\/([^\/]+)/);
+        if (archiveMatch) {
+            const identifier = archiveMatch[1];
+            return `https://archive.org/services/img/${identifier}`;
+        }
+    }
+    
+    // Fallback to Librivox logo
+    return "https://librivox.org/images/librivox-logo.png";
 }
 
 function getAudioSource(book, tracks) {
@@ -395,7 +421,7 @@ function getAudioSource(book, tracks) {
     }
     
     // Create audio sources for each chapter/track
-    const audioSources = tracks.map(track => 
+    const audioSources = tracks.map(track =>
         new AudioUrlSource({
             name: track.title || "Chapter " + track.section_number,
             container: "audio/mp3",
